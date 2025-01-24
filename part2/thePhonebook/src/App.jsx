@@ -1,62 +1,102 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import axios from 'axios'
+import personsService from './services/persons'
+import PersonForm from './services/PersonForm'
+import Contacts from './services/Contacts'
+import Filter from './services/Filter'
+
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: 'Arto Hellas', number: '040-123456', id: 1 },
-    { name: 'Ada Lovelace', number: '39-44-5323523', id: 2 },
-    { name: 'Dan Abramov', number: '12-43-234345', id: 3 },
-    { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 }
-  ])
+
+  /*useEffect to load everything the first time*/
+  useEffect(() => {
+    personsService.getAll()
+      .then(initialPersons => {
+        setPersons(initialPersons)
+      })
+  }, [])
+
+  /*Defining State Functions*/
+
+  const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [newSearch, setNewSearch] = useState('')
 
+  /*Handelers for inputs*/
   const handleNameChange = (event) => {
     const newText = event.target.value
-    console.log(newText)
     setNewName(newText)
   }
-  const isNameInContact = (person) => person.name === newName
-
-  const addContact = (event) => {
-    event.preventDefault()
-    if (persons.find(isNameInContact) === undefined) {
-      console.log("Adding", newName, "to contacts with phone number", newNumber)
-      const newPerson = {
-        name: newName,
-        number: newNumber,
-        id: persons.length + 1
-      }
-      setPersons(persons.concat(newPerson))
-      setNewName('')
-      setNewNumber('')
-    } else {
-      const errorMessage = `${newName} is already added to phonebook`
-      alert(errorMessage)
-    }
-  }
-
-  const filteredPersons = persons.filter(person => {
-    console.log(person.name.toLowerCase())
-    console.log(newSearch)
-    return (
-      person.name.toLowerCase().includes(newSearch)
-    )
-  })
-
 
   const handleNumberChange = (event) => {
     const newText = event.target.value
-    console.log(newText)
     setNewNumber(newText)
   }
 
   const handleSearchChange = (event) => {
     const newText = event.target.value
-    console.log(newText)
     const newTextLowerCase = newText.toLowerCase()
     setNewSearch(newTextLowerCase)
   }
+
+  /*AXIOS CALLS*/
+  /*Delete from database*/
+
+  const deleteContact = (person) => {
+    personsService.remove(person).then(() => setPersons(persons.filter(personToRemove => personToRemove.id !== person.id))).catch(error => console.log(error))
+  }
+
+  /*Add to database*/
+
+  const addContact = (event) => {
+    event.preventDefault()
+    if (persons.find(person => person.name === newName) === undefined) {
+      const newPerson = {
+        name: newName,
+        number: newNumber
+      }
+
+      personsService.create(newPerson)
+        .then(person => {
+          setPersons(persons.concat(person))
+          setNewName('')
+          setNewNumber('')
+        })
+
+    } else {
+
+      if (persons.find(person => person.name === newName && person.number === newNumber) === undefined) {
+
+        if (window.confirm(`'${newName}' is already added to the phonebook, replace the old number with a new one?`)) {
+          console.log("Chose to update the phone number")
+          const oldContact = persons.find(person => person.name === newName)
+          const newContact = { ...oldContact, number: newNumber }
+
+          personsService.update(oldContact.id, newContact)
+            .then(returnedPerson => {
+              setPersons(persons.map(person => person.id === oldContact.id ? newContact : person))
+              setNewName('')
+              setNewNumber('')
+            })
+        } else {
+          console.log("Chose to not update the phone number")
+        }
+      }else{
+        const errorMessage = `${newName} is already in the phonebook with this number`
+        alert(errorMessage)
+      }
+    }
+  }
+  /*END OF AXIOS CALLS*/
+
+  /*filter function*/
+
+  const filteredPersons = persons.filter(person => {
+    return (
+      person.name.toLowerCase().includes(newSearch)
+    )
+  })
 
   return (
     <div>
@@ -66,37 +106,9 @@ const App = () => {
       <h2>add a new</h2>
       <PersonForm addContact={addContact} newName={newName} handleNameChange={handleNameChange} newNumber={newNumber} handleNumberChange={handleNumberChange} />
       <h2>Numbers</h2>
-      <div>
-        {filteredPersons.map(person => <Person key={person.id} name={person.name} number={person.number} />)}
-      </div>
+      <Contacts filteredPersons={filteredPersons} deleteContact={deleteContact} />
     </div>
   )
 }
-
-const Filter = ({newSearch,handleSearchChange}) => {
-  return (
-    <div>
-      Filter shown with <input value={newSearch} onChange={handleSearchChange} />
-    </div>
-  );
-};
-
-const PersonForm = ({addContact,newName,handleNameChange,newNumber,handleNumberChange}) => {
-  return (
-    <form onSubmit={addContact}>
-        <div>
-          name: <input value={newName} onChange={handleNameChange} />
-        </div>
-        <div>
-          number: <input value={newNumber} onChange={handleNumberChange} type="tel" />
-        </div>
-        <div>
-          <button type="submit">add</button>
-        </div>
-      </form>
-  )
-}
-
-const Person = ({ name, number }) => <p>{name} {number}</p>
 
 export default App
