@@ -6,8 +6,8 @@
     "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon index.js",
-     "build:ui": "rm -rf dist && cd ../frontendNotes && npm run build && cp -r dist ../backendNotes",
-    "deploy:full": "npm run build:ui && git add . && git commit -m 'Frontend build update' && git push"
+    "build:ui": "rm -rf dist && cd ../frontendNotes && npm run build && cp -r dist ../backendNotes",
+    "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && git push"
   },
   "author": "Aaron Taylor",
   "license": "MIT",
