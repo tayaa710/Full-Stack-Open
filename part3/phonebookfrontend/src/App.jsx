@@ -43,6 +43,15 @@ const App = () => {
     setNewSearch(newTextLowerCase)
   }
 
+  const resultHandler = (error, message) => {
+    setNotificationMessage(message)
+    setIsError(error)
+
+    setTimeout(() => {
+      setNotificationMessage(null)
+      setIsError(null)
+    }, 5000)
+  }
   /*AXIOS CALLS*/
   /*Delete from database*/
 
@@ -63,14 +72,15 @@ const App = () => {
       personsService.create(newPerson)
         .then(person => {
           setPersons(persons.concat(person))
+
+          const message = `Added '${newPerson.name}'`
           setNewName('')
           setNewNumber('')
-          setNotificationMessage(`Added '${newPerson.name}'`)
-          setIsError(false)
-          setTimeout(() => {
-            setNotificationMessage(null)
-            setIsError(null)
-          }, 5000)
+          resultHandler(false, message)
+
+        }).catch(error => {
+          console.log(error.response.data.error)
+          resultHandler(true, error.response.data.error)
         })
 
     } else {
@@ -78,7 +88,7 @@ const App = () => {
       if (!persons.find(person => person.name === newName && person.number === newNumber)) {
 
         if (window.confirm(`'${newName}' is already added to the phonebook, replace the old number with a new one?`)) {
-          console.log("Chose to update the phone number")
+          console.log("Updating the phone number")
           const oldContact = persons.find(person => person.name === newName)
           const newContact = { ...oldContact, number: newNumber }
 
@@ -86,20 +96,18 @@ const App = () => {
             .then(response => {
               const person = response.data
               setPersons(persons.map(person => person.id === oldContact.id ? newContact : person))
-              setNewName('')
-              setNewNumber('')
+              resultHandler(false, `Successfully updated ${person.name}`)
             })
             .catch(error => {
-              console.log('Error caught')
-              setNotificationMessage(`Information of '${newName}' has already been removed from the server`)
-              setPersons(persons.filter(person => person.id !== oldContact.id))
-              setIsError(true)
-              setNewName('')
-              setNewNumber('')
-              setTimeout(() => {
-                setNotificationMessage(null)
-                setIsError(null)
-              }, 5000)
+              if (error.response.data.error) {
+                resultHandler(true, error.response.data.error)
+              } else {
+                const message = `Information of '${newName}' has already been removed from the server`
+                setNewName('')
+                setNewNumber('')
+                setPersons(persons.filter(person => person.id !== oldContact.id))
+                resultHandler(true, message)
+              }
             })
         } else {
           console.log("Chose to not update the phone number")
@@ -124,7 +132,7 @@ const App = () => {
     <div>
 
       <h2>Phonebook</h2>
-      <Notification message={notificationMessage} isError={isError}/>
+      <Notification message={notificationMessage} isError={isError} />
       <Filter newSearch={newSearch} handleSearchChange={handleSearchChange} />
       <h2>add a new</h2>
       <PersonForm addContact={addContact} newName={newName} handleNameChange={handleNameChange} newNumber={newNumber} handleNumberChange={handleNumberChange} />
@@ -157,9 +165,9 @@ const Notification = ({ message, isError }) => {
 
   if (message === null) {
     return null
-  }else {
+  } else {
     return (
-      <div style={isError? errorStyle : notificationStyle}>
+      <div style={isError ? errorStyle : notificationStyle}>
         {message}
       </div>
     )
