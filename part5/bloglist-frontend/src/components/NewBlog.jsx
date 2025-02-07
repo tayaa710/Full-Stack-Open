@@ -1,7 +1,7 @@
 import { useState } from "react"
 import blogService from '../services/blogs'
 
-const NewBlog = ({ user, setBlogs, blogs, setErrorMessage, setSuccessMessage }) => {
+const NewBlog = ({ user, setBlogs, blogs, setErrorMessage, setSuccessMessage, toggleVisibility }) => {
   const [title, setTitle] = useState('')
   const [url, setUrl] = useState('')
 
@@ -19,6 +19,7 @@ const NewBlog = ({ user, setBlogs, blogs, setErrorMessage, setSuccessMessage }) 
       console.log(updatedBlogs)
       setBlogs(updatedBlogs)
       setSuccessMessage(`A new blog ${response.title} by ${response.author.name} has been added`)
+      toggleVisibility()
       setTimeout(() => {
         setSuccessMessage(null)
       }, 5000)
