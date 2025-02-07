@@ -5,21 +5,22 @@ const jwt = require('jsonwebtoken')
 
 
 blogsRouter.get('/', async (request, response) => {
-  const blogs = await Blog.find({}).populate('author', { username: 1, name: 1 })
+  const blogs = await Blog.find({}).populate('user', { username: 1, name: 1 })
   response.json(blogs)
 })
 
 blogsRouter.post('/', async (request, response) => {
-  const { title, url, likes } = request.body
+  const { title, url, likes, author } = request.body
   const user = request.user
 
 
 
   const blog = new Blog({
     title,
-    author: user._id,
+    user: user._id,
     url,
-    likes
+    likes,
+    author: user.name
   })
 
   const savedBlog = await blog.save()
@@ -27,24 +28,23 @@ blogsRouter.post('/', async (request, response) => {
   user.blogs = user.blogs.concat(savedBlog._id)
   await user.save()
 
-  await savedBlog.populate('author', { username: 1, name: 1 })
+  await savedBlog.populate('user', { username: 1, name: 1 })
 
   response.status(201).json(savedBlog)
 })
 
 blogsRouter.delete('/:id', async (request, response) => {
   const user = request.user
+  console.log(user)
 
   const blog = await Blog.findById(request.params.id)
-  if (blog.author.toString() === user.id.toString()) {
+  console.log(blog)
+  if (blog.user.toString() === user.id.toString()) {
     await blog.deleteOne()
     return response.status(204).end()
   }else{
     return response.status(401).json({ error: "You do not have permission to change this blog" })
   }
-
-
-
 })
 
 blogsRouter.put('/:id', async (request, response) => {
@@ -53,10 +53,12 @@ blogsRouter.put('/:id', async (request, response) => {
     title: body.title,
     author: body.author,
     url: body.url,
-    likes: body.likes
+    likes: body.likes,
+    user: body.user
   }
-  const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, { new: true })
 
+  const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, { new: true }).populate('user', { username: 1, name: 1 })
+  console.log("updated blog", updatedBlog)
   response.json(updatedBlog)
 })
 module.exports = blogsRouter

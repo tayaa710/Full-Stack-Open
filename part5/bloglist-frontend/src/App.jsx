@@ -18,36 +18,45 @@ const App = () => {
     }
   }, [])
 
+  const appContainerStyle = {
+    maxWidth: '600px',
+    margin: '40px auto',
+    fontFamily: 'Arial, sans-serif',
+    padding: '20px',
+    backgroundColor: '#fff',
+    borderRadius: '10px',
+    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)'
+  }
+
+  // ✅ Centering the login screen
+  const loginContainerStyle = {
+    maxWidth: '400px',
+    margin: '100px auto',
+    textAlign: 'center',
+    fontFamily: 'Arial, sans-serif'
+  }
+
   if (user === null){
-    return(
-      <div>
+    return (
+      <div style={loginContainerStyle}>
+        <h1>Login</h1>
         <Notification message={errorMessage} />
-        
         <Login setUser={setUser} setErrorMessage={setErrorMessage} />
       </div>
     )
   }
 
-  return(
-    <div>
-      <Notification errorMessage={errorMessage} successMessage={successMessage}/>
-      <UserPage setUser={setUser} user={user} setErrorMessage={setErrorMessage} setSuccessMessage={setSuccessMessage}/>
+  return (
+    <div style={appContainerStyle}>
+      <Notification errorMessage={errorMessage} successMessage={successMessage} />
+      <UserPage
+        setUser={setUser}
+        user={user}
+        setErrorMessage={setErrorMessage}
+        setSuccessMessage={setSuccessMessage}
+      />
     </div>
   )
 }
 
 export default App
-
-/* useEffect(() => {
-    blogService.getAll().then(blogs =>
-      setBlogs(blogs)
-    )
-  }, [])
-
-  const [blogs, setBlogs] = useState([]) 
-  
-  <h2>blogs</h2>
-      {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} />
-      )}
-  */

@@ -14,7 +14,7 @@ usersRouter.post('/', async (request, response) => {
     response.status(400).json({ error:"password required" })
   }
 
-  if (password.length < 3){
+  if (body.password.length < 3){
     response.status(400).json({ error:"password must be at leaast 3 characters"})
   }
 

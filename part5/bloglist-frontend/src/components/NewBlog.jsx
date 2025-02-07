@@ -1,7 +1,7 @@
-import { useState } from "react"
+import { useState } from 'react'
 import blogService from '../services/blogs'
 
-const NewBlog = ({ user, setBlogs, blogs, setErrorMessage, setSuccessMessage, toggleVisibility }) => {
+const NewBlog = ({ setBlogs, blogs, setErrorMessage, setSuccessMessage, toggleVisibility }) => {
   const [title, setTitle] = useState('')
   const [url, setUrl] = useState('')
 
@@ -10,16 +10,18 @@ const NewBlog = ({ user, setBlogs, blogs, setErrorMessage, setSuccessMessage, to
     const newBlog = {
       title,
       url,
-      author: user.id
+
     }
     try {
       const response = await blogService.createBlog(newBlog)
-      
+
       const updatedBlogs = blogs.concat(response)
       console.log(updatedBlogs)
       setBlogs(updatedBlogs)
-      setSuccessMessage(`A new blog ${response.title} by ${response.author.name} has been added`)
+      setSuccessMessage(`A new blog ${response.title} by ${response.author} has been added`)
       toggleVisibility()
+      setTitle('')
+      setUrl('')
       setTimeout(() => {
         setSuccessMessage(null)
       }, 5000)
@@ -30,32 +32,71 @@ const NewBlog = ({ user, setBlogs, blogs, setErrorMessage, setSuccessMessage, to
         setErrorMessage(null)
       }, 5000)
     }
-    
+
+  }
+
+  const formStyle = {
+    backgroundColor: '#f9f9f9',
+    padding: '20px',
+    borderRadius: '8px',
+    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '12px'
+  }
+  const inputStyle = {
+    padding: '10px',
+    border: '1px solid #ccc',
+    borderRadius: '5px',
+    fontSize: '1rem',
+    width: '100%'
+  }
+
+  const buttonStyle = {
+    backgroundColor: '#007bff',
+    color: 'white',
+    padding: '10px 15px',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer',
+    fontSize: '1rem',
+    fontWeight: 'bold',
+    transition: '0.2s'
+  }
+
+  const buttonHoverStyle = {
+    backgroundColor: '#0056b3'
   }
 
   return (
-    <form onSubmit={handleNewNote}>
+    <form onSubmit={handleNewNote} style={formStyle}>
       <div>
         title:
         <input
-          type="text"
+          type='text'
           value={title}
-          name="Title"
+          name='Title'
           onChange={({ target }) => setTitle(target.value)}
+          style={inputStyle}
         />
       </div>
       <div>
         url:
         <input
-          type="text"
+          type='text'
           value={url}
-          name="Url"
+          name='Url'
           onChange={({ target }) => setUrl(target.value)}
+          style={inputStyle}
         />
       </div>
-      <button type="submit">Create</button>
+      <button type='submit' style={buttonStyle}>
+        ➕ Create
+      </button>
     </form>
   )
 }
+
+NewBlog.displayName = 'NewBlog'
 
 export default NewBlog
