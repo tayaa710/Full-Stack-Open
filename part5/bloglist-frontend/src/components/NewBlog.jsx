@@ -78,6 +78,7 @@ const NewBlog = ({ setBlogs, blogs, setErrorMessage, setSuccessMessage, toggleVi
           name='Title'
           onChange={({ target }) => setTitle(target.value)}
           style={inputStyle}
+          placeholder='Blog Name'
         />
       </div>
       <div>
@@ -88,6 +89,7 @@ const NewBlog = ({ setBlogs, blogs, setErrorMessage, setSuccessMessage, toggleVi
           name='Url'
           onChange={({ target }) => setUrl(target.value)}
           style={inputStyle}
+          placeholder='Blog Url'
         />
       </div>
       <button type='submit' style={buttonStyle}>

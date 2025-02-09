@@ -78,7 +78,7 @@ const UserPage = ({ setErrorMessage, user, setUser, setSuccessMessage }) => {
         blogSorter
       ).map(blog => {
         return (
-          <Blog key={blog.id} blog={blog} setBlogs={setBlogs} blogs={blogs} user={user}/>
+          <Blog key={blog.id} blog={blog} setBlogs={setBlogs} blogs={blogs} user={user} className='blogComponent'/>
         )
       })}
     </div>

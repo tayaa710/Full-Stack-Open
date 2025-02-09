@@ -23,4 +23,10 @@ dist-ssr
 *.sln
 *.sw?
 db.json
-notes-frontend.code-workspace
+coverage/
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

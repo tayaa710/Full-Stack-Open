@@ -46,8 +46,6 @@ const Blog = ({ blog, setBlogs, blogs, user }) => {
   }
 
   return (
-
-
     <div style={blogCardStyle}>
       <div style={headerStyle}>
         <strong>{blog.title}</strong>
