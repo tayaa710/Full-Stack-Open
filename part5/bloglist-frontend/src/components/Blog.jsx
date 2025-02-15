@@ -48,7 +48,7 @@ const Blog = ({ blog, setBlogs, blogs, user }) => {
   return (
     <div style={blogCardStyle}>
       <div style={headerStyle}>
-        <strong>{blog.title}</strong>
+        <strong data-testid="blogTitle">{blog.title}</strong>
         <Togglable showButtonLabel='view details' hideButtonLabel='hide detail' needsToggler={true} setToggler={setShowDetails}>
         </Togglable>
       </div>

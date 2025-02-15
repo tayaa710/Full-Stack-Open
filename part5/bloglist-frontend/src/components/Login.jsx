@@ -33,6 +33,7 @@ const Login = ({ setUser, setErrorMessage }) => {
       <div>
         username
         <input
+        data-testid="username"
           type="text"
           value={username}
           name="Username"
@@ -42,6 +43,7 @@ const Login = ({ setUser, setErrorMessage }) => {
       <div>
         password
         <input
+          data-testid="password"
           type="password"
           value={password}
           name="Password"

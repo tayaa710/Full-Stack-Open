@@ -5,10 +5,13 @@
   "scripts": {
     "start": "NODE_ENV=production node index.js",
     "dev": "NODE_ENV=development nodemon index.js",
-    "test": "NODE_ENV=test node --test",
-    "test:only":"NODE_ENV=test node --test --only=true",
+    "build:ui": "rm -rf build && cd ../frontend/ && npm run build && cp -r build ../backend",
+    "deploy": "fly deploy",
+    "deploy:full": "npm run build:ui && npm run deploy",
+    "logs:prod": "fly logs",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "test": "NODE_ENV=test node --test",
+    "start:test": "NODE_ENV=test node index.js"
   },
   "author": "Aaron Taylor",
   "license": "MIT",
