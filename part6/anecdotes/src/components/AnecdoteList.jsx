@@ -1,32 +1,39 @@
 /* eslint-disable react/prop-types */
 import { useSelector, useDispatch } from "react-redux"
-import { updateVote } from "../reducers/anecdoteReducer"
+import {  initializeAnecdotes } from "../reducers/anecdoteReducer"
+import { setNotification } from "../reducers/notificationReducer"
+import { useEffect } from "react"
+import { voteForAnecdote } from "../reducers/anecdoteReducer"
 
 const AnecdoteList = () => {
-  const anecdotes = useSelector(state => {
-    const sortedState = [...state].sort((a, b) => {
-      return b.votes - a.votes
-    })
-    return sortedState
+  const dispatch = useDispatch()
+
+  useEffect(() => {
+    dispatch(initializeAnecdotes())
+  },[dispatch])
+
+  const anecdotes = useSelector(({ anecdotes, filter }) => {
+    const filteredAnecdotes = filter !== ""
+    ? anecdotes.filter(a => a.content.toLowerCase().includes(filter.toLowerCase()))
+    : anecdotes
+    return [...filteredAnecdotes].sort((a, b) => b.votes - a.votes)
   })
-  
+
   return (
     <div>
       {anecdotes.map(anecdote =>
-        <Anecdote key={anecdote.id} anecdote={anecdote}/>
+        <Anecdote key={anecdote.id} anecdote={anecdote} />
       )}
-      <h2>Anecdotes</h2>
     </div>
   )
-
-
 }
 
 const Anecdote = ({ anecdote }) => {
   const dispatch = useDispatch()
 
-  const vote = (id) => {
-    dispatch(updateVote(id))
+  const vote = (anecdote) => {
+    dispatch(voteForAnecdote(anecdote))
+    dispatch(setNotification(`you voted '${anecdote.content}'`, 10))
   }
 
   return (
@@ -36,7 +43,7 @@ const Anecdote = ({ anecdote }) => {
       </div>
       <div>
         has {anecdote.votes}
-        <button onClick={() => vote(anecdote.id)}>vote</button>
+        <button onClick={() => vote(anecdote)}>vote</button>
       </div>
     </div>
   )

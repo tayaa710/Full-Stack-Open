@@ -1,3 +1,6 @@
+import { createSlice } from "@reduxjs/toolkit"
+import anecdoteService from '../services/anecdotes'
+
 const anecdotesAtStart = [
   'If it hurts, do it more often',
   'Adding manpower to a late software project makes it later!',
@@ -19,37 +22,52 @@ const asObject = (anecdote) => {
 
 const initialState = anecdotesAtStart.map(asObject)
 
-const reducer = (state = initialState, action) => {
-  switch (action.type) {
-    case 'VOTE': {
-      const id = action.payload.id
+const anecdoteSlice = createSlice({
+  name: 'anecdote',
+  initialState,
+  reducers: {
+    addAnecdote(state, action) {
+      state.push(action.payload)
+    },
+
+    updateVote(state, action) {
+      const id = action.payload
       const anecdote = state.find(a => a.id === id)
-      const votedAnecdote = { ...anecdote, votes: anecdote.votes + 1 }
-      const newState = state.map(a => a.id !== id ? a : votedAnecdote)
-      return newState
-    }
-    case 'NEW_ANECDOTE': {
-      return state.concat({ ...action.payload, id: getId(), votes: 0 })
+      anecdote.votes += 1
+    },
+    setAnecdotes(state, action) {
+      return action.payload
     }
   }
+})
 
-  return state
+
+export const { addAnecdote, updateVote, setAnecdotes } = anecdoteSlice.actions
+
+export const initializeAnecdotes = () => {
+  return async dispatch => {
+    const anecdotes = await anecdoteService.getAll()
+    dispatch(setAnecdotes(anecdotes))
+  }
 }
 
 export const createAnecdote = (content) => {
-  return {
-    type: 'NEW_ANECDOTE',
-    payload: { content }
+  return async dispatch => {
+    const newAnecdote = {
+      content,
+      votes: 0
+    }
+    const anecdote = await anecdoteService.createNew(newAnecdote)
+    console.log(anecdote)
+    dispatch(addAnecdote(anecdote))
   }
 }
 
-export const updateVote = (id) => {
-  return {
-    type: 'VOTE',
-    payload: { id }
+export const voteForAnecdote = (anecdote) => {
+  return async dispatch => {
+    const updatedAnecdote = await anecdoteService.updateId(anecdote)
+    dispatch(updateVote(updatedAnecdote.id))
   }
 }
 
-
-
-export default reducer
+export default anecdoteSlice.reducer
